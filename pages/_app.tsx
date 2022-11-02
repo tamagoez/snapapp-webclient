@@ -2,7 +2,8 @@ import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { SessionContextProvider, Session } from "@supabase/auth-helpers-react";
 import type { AppProps } from "next/app";
 import { useState } from "react";
-import { FeedBack } from "../components/FeedBack"
+import { FeedBack } from "../components/FeedBack";
+import "../styles/globals.css";
 
 function MyApp({
   Component,

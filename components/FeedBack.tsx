@@ -34,7 +34,7 @@ export function FeedBack() {
           flex-shrink: 0;
           position: fixed;
           bottom: 60px;
-          right: -1px;
+          right: -76px;
           background-color: #f5f3f2;
           border-color: #f5f3f2;
           cursor: pointer;
@@ -49,10 +49,21 @@ export function FeedBack() {
           background-color: #68666c;
           border-color: #68666c;
           opacity: 100%;
+          animation: slideIn 0.2s ease 1 forwards;
+        }
+        .feedback-button div {
+          display: flex;
+          place-items: center;
         }
         .feedback-button span {
           padding-top: 6px;
           font-size: 25px;
+        }
+        .feedback-button #fbtext {
+          padding-top: 0px;
+          margin-left: 4px;
+          font-size: 15px;
+          font-weight: 600;
         }
         .feedback-parent {
           display: none;
@@ -96,6 +107,14 @@ export function FeedBack() {
             opacity: 100%;
           }
         }
+        @keyframes slideIn {
+          0% {
+            transform: translateX(0px);
+          }
+          100% {
+            transform: translateX(-75px);
+          }
+        }
       `}</style>
       <input type="checkbox" id="feedback" />
       <button
@@ -105,9 +124,12 @@ export function FeedBack() {
             true)
         }
       >
-        <span>
-          <MdFeedback />
-        </span>
+        <div>
+          <span>
+            <MdFeedback />
+          </span>
+          <span id="fbtext">Feedback</span>
+        </div>
       </button>
       <div className="feedback-parent">
         <div className="feedback-modal">
