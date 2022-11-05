@@ -6,8 +6,10 @@ import { useRouter } from "next/router";
 export default function AuthPage() {
   const session = useSession();
   const supabase = useSupabaseClient();
-  const router = useRouter()
-  useEffect(() => {if (session) router.replace("/app/profile")}, [session])
+  const router = useRouter();
+  useEffect(() => {
+    if (session) router.replace("/app/loginlead");
+  }, [session]);
   return (
     <>
       <Auth

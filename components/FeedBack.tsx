@@ -45,10 +45,6 @@ export function FeedBack() {
           opacity: 40%;
         }
         .feedback-button:hover {
-          color: white;
-          background-color: #68666c;
-          border-color: #68666c;
-          opacity: 100%;
           animation: slideIn 0.2s ease 1 forwards;
         }
         .feedback-button div {
@@ -110,9 +106,16 @@ export function FeedBack() {
         @keyframes slideIn {
           0% {
             transform: translateX(0px);
+            opacity: 40%;
+            background-color: #f5f3f2;
+            border-color: #f5f3f2;
           }
           100% {
             transform: translateX(-75px);
+            color: white;
+            background-color: #68666c;
+            border-color: #68666c;
+            opacity: 100%;
           }
         }
       `}</style>
