@@ -1,6 +1,6 @@
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 
-export async function GetUsername(userid) {
+export async function GetUsername(userid: string) {
   const session = useSession();
   const supabase = useSupabaseClient();
   try {
@@ -17,3 +17,5 @@ export async function GetUsername(userid) {
     console.error(error.message);
   }
 }
+
+export async function GetUsericon(userid: string) {}
