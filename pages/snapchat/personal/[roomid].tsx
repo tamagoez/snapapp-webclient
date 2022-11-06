@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { relative } from "path";
 import { useEffect, useRef, useState } from "react";
 import { IoSend } from "react-icons/io5";
+import { IoIosArrowBack } from "react-icons/io";
 import supabase from "../../../utils/supabase";
 
 export default function ChatRoom({}) {
@@ -37,7 +38,7 @@ export default function ChatRoom({}) {
 
   useEffect(() => {
     if (roomid) {
-      getUsername();
+      getUsername(roomid);
       fetchMessages(roomid).then((data) => {
         setMessages(data);
         console.log(messages);
@@ -75,7 +76,7 @@ export default function ChatRoom({}) {
     });
   }, [messages]);
 
-  async function getUsername() {
+  async function getUsername(roomid) {
     let ouserid;
     try {
       const { data, error } = await supabase
@@ -115,6 +116,7 @@ export default function ChatRoom({}) {
         sendmessage(inputvalue);
         setTimeout(() => {
           setInputValue("");
+          document.getElementById("messageinput").focus;
         }, 20);
       }
     };
@@ -135,29 +137,35 @@ export default function ChatRoom({}) {
         <style jsx>{`
           .bottominput {
             position: fixed;
-            bottom: 0;
+            bottom: -2px;
             display: flex;
             width: 100%;
             height: 45px;
+            background-color: #eeeeee;
           }
           .messageinput {
             width: 95%;
-            border: 2px solid #cccccc;
+            border: 1px solid #cccccc;
             border-radius: 5px 5px 5px 5px;
             resize: none;
+            font-size: 14px;
           }
           .messageinput:focus {
             border: 2px solid #0000ff;
             outline: 0;
+            font-size: 16px;
           }
           .bottominput button {
             width: 7%;
             min-width: 45px;
+            border: 1px solid #cccccc;
+            border-radius: 5px 5px 5px 5px;
           }
         `}</style>
         <div className="bottominput">
           <textarea
             className="messageinput"
+            id="messageinput"
             placeholder={`メッセージを入力
 [SHIFT+Enterで送信 / Enterで改行]`}
             value={inputvalue}
@@ -169,6 +177,7 @@ export default function ChatRoom({}) {
               sendmessage(inputvalue);
               setTimeout(() => {
                 setInputValue("");
+                document.getElementById("messageinput").focus;
               }, 20);
             }}
           >
@@ -182,12 +191,40 @@ export default function ChatRoom({}) {
   return (
     <>
       <style jsx>{`
+        .topnav {
+          display: flex;
+          align-items: center;
+          position: fixed;
+          top: 0;
+          height: 40px;
+          width: 100%;
+          background-color: #eeeeee;
+          opacity: 90%;
+          padding-left: 5px;
+        }
+        .topnav p {
+          margin: 0;
+          font-size: 20px;
+          padding-left: 4px;
+          padding-right: 4px;
+          cursor: pointer;
+        }
+        .topnav h4 {
+          margin: 0;
+        }
         #chatframe {
           margin-bottom: 45px;
         }
       `}</style>
       <div className="topnav">
-        <h4>{username}</h4>
+        <div>
+          <p onClick={() => router.back()}>
+            <IoIosArrowBack />
+          </p>
+        </div>
+        <div>
+          <h4>{username}</h4>
+        </div>
       </div>
       <div id="chatframe">
         {messages.map((x) => (
@@ -234,17 +271,23 @@ function OpponentChat({ userid, messageid, text, created_at }) {
         }
         .mychat {
           display: inline-flex;
+          align-items: center;
         }
         .mychat img {
-          width: 50px;
-          height: 50px;
+          width: 40px;
+          height: 40px;
           background-color: #ffffff;
           border: solid 0px #000000;
           border-radius: 50%;
         }
         .chattext {
-          background-color: #dfe2ea;
+          background-color: #eeeeee;
           margin-right: 10px;
+          border-radius: 0px 12px 12px 12px;
+          padding-right: 8px;
+          padding-left: 8px;
+          padding-top: 2px;
+          padding-bottom: 2px;
         }
         .created_at {
           margin: 0;
@@ -272,20 +315,27 @@ function MyChat({ userid, messageid, text, created_at }) {
           width: 100%;
           display: flex;
           justify-content: flex-end;
+          margin: 0;
         }
         .mychat {
           display: inline-flex;
+          align-items: center;
         }
         .mychat img {
-          width: 50px;
-          height: 50px;
+          width: 40px;
+          height: 40px;
           background-color: #ffffff;
           border: solid 0px #000000;
           border-radius: 50%;
         }
         .chattext {
-          background-color: #dfe2ea;
+          background-color: #b2dfdb;
           margin-right: 10px;
+          border-radius: 12px 0px 12px 12px;
+          padding-right: 8px;
+          padding-left: 8px;
+          padding-top: 2px;
+          padding-bottom: 2px;
         }
         .created_at {
           width: 100%;
