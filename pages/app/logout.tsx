@@ -15,7 +15,7 @@ export default function Logout() {
 
   useEffect(() => {
     if (session) router.replace("/app/auth");
-  }, [session, rout]);
+  }, [session, router]);
   return (
     <>
       <p>Logout...</p>
