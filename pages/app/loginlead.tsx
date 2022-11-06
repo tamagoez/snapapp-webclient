@@ -4,13 +4,14 @@ import {
   useUser,
 } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function LoginLead() {
   const session = useSession();
   const supabase = useSupabaseClient();
   const router = useRouter();
   const user = useUser();
+
   useEffect(() => {
     if (!session) router.replace("/app/auth");
     else checkprofile();
@@ -25,7 +26,12 @@ export default function LoginLead() {
         .single();
       if (error) throw error;
       console.dir(data);
-      router.replace("/app/dashboard");
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.has("next")) {
+        router.replace(searchParams.get("next"));
+      } else {
+        router.replace("/app/dashboard");
+      }
       return data;
     } catch (error) {
       console.error(error.message);

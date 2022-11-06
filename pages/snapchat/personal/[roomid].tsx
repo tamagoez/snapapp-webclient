@@ -1,10 +1,17 @@
-import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
+import {
+  useSession,
+  useSupabaseClient,
+  useUser,
+} from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
 import { relative } from "path";
 import { useEffect, useRef, useState } from "react";
 import { IoSend } from "react-icons/io5";
 import { IoIosArrowBack } from "react-icons/io";
-import supabase from "../../../utils/supabase";
+import ReactMarkdown from "react-markdown";
+import gfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
+const { DateTime } = require("luxon");
 
 export default function ChatRoom({}) {
   const router = useRouter();
@@ -15,6 +22,12 @@ export default function ChatRoom({}) {
   const userid = user?.id;
   const [username, setUsername] = useState("Loading...");
   const [messages, setMessages] = useState([]);
+
+  const session = useSession();
+  useEffect(() => {
+    if (session) console.log("logined");
+    else router.replace(`/app/auth?next=${location.pathname}`);
+  }, [session]);
 
   //kari
   const [newMessage, setNewMessage] = useState(null);
@@ -37,7 +50,7 @@ export default function ChatRoom({}) {
   }
 
   useEffect(() => {
-    if (roomid) {
+    if (roomid && userid) {
       getUsername(roomid);
       fetchMessages(roomid).then((data) => {
         setMessages(data);
@@ -55,7 +68,7 @@ export default function ChatRoom({}) {
         )
         .subscribe();
     }
-  }, [roomid]);
+  }, [roomid, userid]);
 
   // New message recieved from Postgres
   useEffect(() => {
@@ -70,10 +83,15 @@ export default function ChatRoom({}) {
 
   const messagesEndRef = useRef(null);
   useEffect(() => {
-    messagesEndRef.current.scrollIntoView({
-      block: "start",
-      behavior: "smooth",
-    });
+    let scrollHeight = document.documentElement.scrollHeight;
+    let YOffset = window.pageYOffset;
+    console.log(`scrollHeight: ${scrollHeight} / YOffset: ${YOffset}`);
+    if (scrollHeight - YOffset < 1000) {
+      messagesEndRef.current.scrollIntoView({
+        block: "start",
+        behavior: "smooth",
+      });
+    }
   }, [messages]);
 
   async function getUsername(roomid) {
@@ -92,18 +110,20 @@ export default function ChatRoom({}) {
       console.error(error);
       alert(error.message);
     }
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("username")
-        .eq("id", ouserid)
-        .limit(1)
-        .single();
-      if (error) throw error;
-      setUsername(data.username);
-    } catch (error) {
-      console.error(error);
-      alert(error.message);
+    if (ouserid) {
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("id", ouserid)
+          .limit(1)
+          .single();
+        if (error) throw error;
+        setUsername(data.username);
+      } catch (error) {
+        console.error(error);
+        alert(error.message);
+      }
     }
   }
 
@@ -140,7 +160,7 @@ export default function ChatRoom({}) {
             bottom: -2px;
             display: flex;
             width: 100%;
-            height: 45px;
+            height: 47px;
             background-color: #eeeeee;
           }
           .messageinput {
@@ -238,7 +258,7 @@ export default function ChatRoom({}) {
 }
 
 function ChatComponent({ x, userid }) {
-  console.dir(x);
+  // console.dir(x);
   if (x.userid === userid) {
     return (
       <MyChat
@@ -286,8 +306,7 @@ function OpponentChat({ userid, messageid, text, created_at }) {
           border-radius: 0px 12px 12px 12px;
           padding-right: 8px;
           padding-left: 8px;
-          padding-top: 2px;
-          padding-bottom: 2px;
+          margin-block-end: 0;
         }
         .created_at {
           margin: 0;
@@ -302,10 +321,18 @@ function OpponentChat({ userid, messageid, text, created_at }) {
               alt="仮アイコン"
             />
           </div>
-          <p className="chattext">{text}</p>
+          <p className="chattext">
+            <ReactMarkdown
+              remarkPlugins={[gfm, remarkBreaks]}
+              unwrapDisallowed={false}
+              linkTarget="_blank"
+            >
+              {text}
+            </ReactMarkdown>
+          </p>
         </div>
       </div>
-      <p className="created_at">{created_at}</p>
+      <p className="created_at">{replacetz(created_at)}</p>
     </>
   );
 }
@@ -337,8 +364,7 @@ function MyChat({ userid, messageid, text, created_at }) {
           border-radius: 12px 0px 12px 12px;
           padding-right: 8px;
           padding-left: 8px;
-          padding-top: 2px;
-          padding-bottom: 2px;
+          margin-block-end: 0;
         }
         .created_at {
           width: 100%;
@@ -346,18 +372,34 @@ function MyChat({ userid, messageid, text, created_at }) {
           justify-content: flex-end;
           margin: 0;
           font-size: 5px;
+          padding-right: 5px;
         }
       `}</style>
       <div className="mychatbox">
         <div className="mychat">
-          <p className="chattext">{text}</p>
-
+          <p className="chattext">
+            <ReactMarkdown
+              remarkPlugins={[gfm, remarkBreaks]}
+              unwrapDisallowed={false}
+              linkTarget="_blank"
+            >
+              {text}
+            </ReactMarkdown>
+          </p>
           <div>
             <img src="https://pedpmlptqookenixzvqt.supabase.co/storage/v1/object/public/avatars/guest.svg" />
           </div>
         </div>
       </div>
-      <p className="created_at">{created_at}</p>
+      <p className="created_at">{replacetz(created_at)}</p>
     </>
   );
+}
+
+function replacetz(time) {
+  // const systemtz = DateTime.now().locale;
+  // Settings.defaultZone = "system";
+  const defaulttime = DateTime.fromISO(time);
+  const rezoned = defaulttime.setZone(DateTime.local().zoneName);
+  return rezoned.toFormat("ff").toString();
 }

@@ -7,8 +7,11 @@ export default function AuthPage() {
   const session = useSession();
   const supabase = useSupabaseClient();
   const router = useRouter();
+  const query = router.query;
   useEffect(() => {
-    if (session) router.replace("/app/loginlead");
+    if (session)
+      if (query.next) router.replace(`/app/loginlead?next=${query.next}`);
+      else router.replace("/app/loginlead");
   }, [session, router]);
   return (
     <>
