@@ -228,7 +228,7 @@ export default function ChatRoom({}) {
       </div>
       <div id="chatframe">
         {messages.map((x) => (
-          <ChatComponent x={x} userid={userid} />
+          <ChatComponent x={x} userid={userid} key={x.key} />
         ))}
       </div>
       <div ref={messagesEndRef} style={{ height: 0 }} />
@@ -297,7 +297,10 @@ function OpponentChat({ userid, messageid, text, created_at }) {
       <div className="mychatbox">
         <div className="mychat">
           <div>
-            <img src="https://pedpmlptqookenixzvqt.supabase.co/storage/v1/object/public/avatars/guest.svg" />
+            <img
+              src="https://pedpmlptqookenixzvqt.supabase.co/storage/v1/object/public/avatars/guest.svg"
+              alt="仮アイコン"
+            />
           </div>
           <p className="chattext">{text}</p>
         </div>

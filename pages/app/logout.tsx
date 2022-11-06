@@ -9,12 +9,13 @@ export default function Logout() {
 
   async function logoutdeal() {
     const { error } = await supabase.auth.signOut();
+    if (error) alert(error.message);
   }
   logoutdeal();
 
   useEffect(() => {
     if (session) router.replace("/app/auth");
-  }, [session]);
+  }, [session, rotuer]);
   return (
     <>
       <p>Logout...</p>

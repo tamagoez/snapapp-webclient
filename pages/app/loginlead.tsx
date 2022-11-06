@@ -37,7 +37,7 @@ export default function LoginLead() {
       <p>
         Please wait a moment...
         <br />
-        We're going to lead you to page!
+        We&apos;re going to lead you to page!
       </p>
     </>
   );

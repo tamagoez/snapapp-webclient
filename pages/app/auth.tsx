@@ -9,7 +9,7 @@ export default function AuthPage() {
   const router = useRouter();
   useEffect(() => {
     if (session) router.replace("/app/loginlead");
-  }, [session]);
+  }, [session, router]);
   return (
     <>
       <Auth
