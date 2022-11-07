@@ -8,7 +8,7 @@ import {
 import type { AppProps } from "next/app";
 import { useEffect, useState } from "react";
 import { FeedBack } from "../components/FeedBack";
-import { SetOnline } from "../scripts/userdata";
+// import { SetOnline } from "../scripts/userdata";
 import "../styles/globals.css";
 
 function MyApp({
@@ -20,13 +20,6 @@ function MyApp({
   const [supabaseClient] = useState(() => createBrowserSupabaseClient());
 
   const session = useSession();
-  const userid = useUser().id;
-  function setOnline() {
-    console.log("setonline");
-    SetOnline(userid);
-  }
-  if (typeof window !== undefined)
-    window.addEventListener("scroll", setOnline, true);
 
   return (
     <SessionContextProvider

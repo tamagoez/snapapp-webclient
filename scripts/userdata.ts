@@ -26,7 +26,7 @@ export async function GetUsername(userid: string) {
 export async function GetUsericon(userid: string) {}
 
 // const userid = useUser().id;
-export async function SetOnline(userid) {
+async function SetOnline(userid) {
   const supabase = useSupabaseClient();
   const nowtime = DateTime.now().setZone("utc").toString();
   console.log(`${userid}: Online at ${nowtime}`);

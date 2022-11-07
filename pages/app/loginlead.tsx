@@ -5,7 +5,6 @@ import {
 } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { SetOnline } from "../../scripts/userdata";
 
 export default function LoginLead() {
   const session = useSession();
@@ -16,7 +15,6 @@ export default function LoginLead() {
   useEffect(() => {
     if (!session) router.replace("/app/auth");
     else checkprofile();
-    SetOnline();
   }, [user]);
   async function checkprofile() {
     try {
