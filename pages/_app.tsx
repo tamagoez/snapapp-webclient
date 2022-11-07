@@ -1,8 +1,14 @@
 import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs";
-import { SessionContextProvider, Session } from "@supabase/auth-helpers-react";
+import {
+  SessionContextProvider,
+  Session,
+  useSession,
+  useUser,
+} from "@supabase/auth-helpers-react";
 import type { AppProps } from "next/app";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FeedBack } from "../components/FeedBack";
+import { SetOnline } from "../scripts/userdata";
 import "../styles/globals.css";
 
 function MyApp({
@@ -12,6 +18,15 @@ function MyApp({
   initialSession: Session;
 }>) {
   const [supabaseClient] = useState(() => createBrowserSupabaseClient());
+
+  const session = useSession();
+  const userid = useUser().id;
+  function setOnline() {
+    console.log("setonline");
+    SetOnline(userid);
+  }
+  if (typeof window !== undefined)
+    window.addEventListener("scroll", setOnline, true);
 
   return (
     <SessionContextProvider

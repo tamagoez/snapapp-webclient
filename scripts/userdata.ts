@@ -1,4 +1,9 @@
-import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import {
+  useSession,
+  useSupabaseClient,
+  useUser,
+} from "@supabase/auth-helpers-react";
+const { DateTime } = require("luxon");
 
 export async function GetUsername(userid: string) {
   const session = useSession();
@@ -19,3 +24,20 @@ export async function GetUsername(userid: string) {
 }
 
 export async function GetUsericon(userid: string) {}
+
+// const userid = useUser().id;
+export async function SetOnline(userid) {
+  const supabase = useSupabaseClient();
+  const nowtime = DateTime.now().setZone("utc").toString();
+  console.log(`${userid}: Online at ${nowtime}`);
+  try {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ online_at: nowtime })
+      .eq("id", userid);
+    if (error) throw error;
+  } catch (error) {
+    console.error(error);
+    alert(`ERROR: ${error.message}`);
+  }
+}

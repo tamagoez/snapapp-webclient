@@ -55,20 +55,23 @@ export default function ChatRoom({}) {
       fetchMessages(roomid).then((data) => {
         setMessages(data);
         console.log(messages);
+        scroll();
       });
-      supabase
-        .channel(`public:personalchat:roomid=eq.${roomid}`)
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "*", table: "personalchat" },
-          (payload) => {
-            console.log("Change received!", payload.new);
-            setNewMessage(payload.new);
-          }
-        )
-        .subscribe();
+      supabase.removeAllChannels().then(() =>
+        supabase
+          .channel(`public:personalchat:roomid=eq.${roomid}`)
+          .on(
+            "postgres_changes",
+            { event: "*", schema: "*", table: "personalchat" },
+            (payload) => {
+              console.log("Change received!", payload.new);
+              setNewMessage(payload.new);
+            }
+          )
+          .subscribe()
+      );
     }
-  }, [roomid, userid]);
+  }, [roomid, userid, supabase]);
 
   // New message recieved from Postgres
   useEffect(() => {
@@ -76,23 +79,48 @@ export default function ChatRoom({}) {
       const handleAsync = async () => {
         setMessages(messages.concat(newMessage));
       };
-      handleAsync();
+      console.log(newMessage.roomid == roomid);
+      if (newMessage.roomid == roomid) handleAsync();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newMessage]);
+  }, [newMessage, roomid]);
 
   const messagesEndRef = useRef(null);
+  function scroll() {
+    messagesEndRef.current?.scrollIntoView({
+      block: "start",
+      behavior: "smooth",
+    });
+  }
   useEffect(() => {
-    let scrollHeight = document.documentElement.scrollHeight;
-    let YOffset = window.pageYOffset;
-    console.log(`scrollHeight: ${scrollHeight} / YOffset: ${YOffset}`);
-    if (scrollHeight - YOffset < 1000) {
-      messagesEndRef.current.scrollIntoView({
-        block: "start",
-        behavior: "smooth",
-      });
+    if (document) {
+      //スクロールイベントリスナーに登録
+      window.addEventListener("scroll", readLog, { once: true });
+      // https://1-notes.com/javascript-event-when-the-element-enters-the-screen-by-scrolling/
+      let innerHeight = window.innerHeight;
+      let elementslists = document.getElementsByClassName("mychatbox");
+      let scrollpos =
+        elementslists[elementslists.length - 1]?.getBoundingClientRect().top;
+      console.log(`innerHeight: ${innerHeight} / scrollpos: ${scrollpos}`);
+      if (scrollpos <= innerHeight) {
+        scroll();
+      }
     }
   }, [messages]);
+
+  const readLog = function () {
+    if (document) {
+      // https://1-notes.com/javascript-event-when-the-element-enters-the-screen-by-scrolling/
+      let innerHeight = window.innerHeight;
+      let elementslists = document.getElementsByClassName("mychatbox");
+      let scrollpos =
+        elementslists[elementslists.length - 1]?.getBoundingClientRect().top;
+      console.log(`innerHeight: ${innerHeight} / scrollpos: ${scrollpos}`);
+      if (scrollpos <= innerHeight) {
+        console.log(newMessage.id);
+      }
+    }
+  };
 
   async function getUsername(roomid) {
     let ouserid;
@@ -127,85 +155,29 @@ export default function ChatRoom({}) {
     }
   }
 
-  function MessageInput({ userid, roomid }) {
-    const [inputvalue, setInputValue] = useState("");
-    const keyDown = (event) => {
-      // Watch for enter key
-      if (event.shiftKey && event.key === "Enter") {
-        console.log(`Shift + Enter`);
-        sendmessage(inputvalue);
-        setTimeout(() => {
-          setInputValue("");
-          document.getElementById("messageinput").focus;
-        }, 20);
-      }
-    };
-    async function sendmessage(value) {
-      console.log(`${userid}: ${value} -> ${roomid}`);
-      try {
-        const { error } = await supabase
-          .from("personalchat")
-          .insert({ userid: userid, text: value, roomid: roomid });
-        if (error) throw error;
-      } catch (error) {
-        console.error(error);
-        alert(`ERROR: ${error.message}`);
-      }
+  const [inputvalue, setInputValue] = useState("");
+  const keyDown = (event) => {
+    // Watch for enter key
+    if (event.shiftKey && event.key === "Enter") {
+      console.log(`Shift + Enter`);
+      sendmessage(inputvalue);
+      setTimeout(() => {
+        setInputValue("");
+        document.getElementById("messageinput").focus;
+      }, 20);
     }
-    return (
-      <>
-        <style jsx>{`
-          .bottominput {
-            position: fixed;
-            bottom: -2px;
-            display: flex;
-            width: 100%;
-            height: 47px;
-            background-color: #eeeeee;
-          }
-          .messageinput {
-            width: 95%;
-            border: 1px solid #cccccc;
-            border-radius: 5px 5px 5px 5px;
-            resize: none;
-            font-size: 14px;
-          }
-          .messageinput:focus {
-            border: 2px solid #0000ff;
-            outline: 0;
-            font-size: 16px;
-          }
-          .bottominput button {
-            width: 7%;
-            min-width: 45px;
-            border: 1px solid #cccccc;
-            border-radius: 5px 5px 5px 5px;
-          }
-        `}</style>
-        <div className="bottominput">
-          <textarea
-            className="messageinput"
-            id="messageinput"
-            placeholder={`メッセージを入力
-[SHIFT+Enterで送信 / Enterで改行]`}
-            value={inputvalue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => keyDown(e)}
-          />
-          <button
-            onClick={() => {
-              sendmessage(inputvalue);
-              setTimeout(() => {
-                setInputValue("");
-                document.getElementById("messageinput").focus;
-              }, 20);
-            }}
-          >
-            <IoSend />
-          </button>
-        </div>
-      </>
-    );
+  };
+  async function sendmessage(value) {
+    console.log(`${userid}: ${value} -> ${roomid}`);
+    try {
+      const { error } = await supabase
+        .from("personalchat")
+        .insert({ userid: userid, text: value, roomid: roomid });
+      if (error) throw error;
+    } catch (error) {
+      console.error(error);
+      alert(`ERROR: ${error.message}`);
+    }
   }
 
   return (
@@ -251,8 +223,57 @@ export default function ChatRoom({}) {
           <ChatComponent x={x} userid={userid} key={x.key} />
         ))}
       </div>
-      <div ref={messagesEndRef} style={{ height: 0 }} />
-      <MessageInput userid={userid} roomid={roomid} />
+      <div ref={messagesEndRef} style={{ height: 0 }} id="scrollpos" />
+      <style jsx>{`
+        .bottominput {
+          position: fixed;
+          bottom: -2px;
+          display: flex;
+          width: 100%;
+          height: 47px;
+          background-color: #eeeeee;
+        }
+        .messageinput {
+          width: 95%;
+          border: 1px solid #cccccc;
+          border-radius: 5px 5px 5px 5px;
+          resize: none;
+          font-size: 14px;
+        }
+        .messageinput:focus {
+          border: 2px solid #0000ff;
+          outline: 0;
+          font-size: 16px;
+        }
+        .bottominput button {
+          width: 7%;
+          min-width: 45px;
+          border: 1px solid #cccccc;
+          border-radius: 5px 5px 5px 5px;
+        }
+      `}</style>
+      <div className="bottominput">
+        <textarea
+          className="messageinput"
+          id="messageinput"
+          placeholder={`メッセージを入力
+[SHIFT+Enterで送信 / Enterで改行]`}
+          value={inputvalue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => keyDown(e)}
+        />
+        <button
+          onClick={() => {
+            sendmessage(inputvalue);
+            setTimeout(() => {
+              setInputValue("");
+              document.getElementById("messageinput").focus;
+            }, 20);
+          }}
+        >
+          <IoSend />
+        </button>
+      </div>
     </>
   );
 }
