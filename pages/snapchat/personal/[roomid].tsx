@@ -34,24 +34,22 @@ export default function ChatRoom({}) {
   //
   const [readid, setReadid] = useState(undefined);
   // if (typeof window !== "undefined") window.addEventListener("scroll", updatereadid, { once: true });
-    async function updatereadid() {
-      if (readid === undefined) return;
-      const toppos = document
-        .getElementById(readid)
-        .getBoundingClientRect().top;
-      const innerHeight = window.innerHeight;
-      console.log(
-        `[updatereadid] innerHeight: ${innerHeight} / toppos: ${toppos}`
-      );
-      if (toppos <= innerHeight) {
-        console.log("[updatereadid] Start Update!");
-        setReadid(readid + 1);
-        console.log(`readid: ${readid}`);
-      }
-      setTimeout(() => {
-        window.addEventListener("scroll", updatereadid, { once: true });
-      }, 2000);
+  async function updatereadid() {
+    if (readid === undefined) return;
+    const toppos = document.getElementById(readid).getBoundingClientRect().top;
+    const innerHeight = window.innerHeight;
+    console.log(
+      `[updatereadid] innerHeight: ${innerHeight} / toppos: ${toppos}`
+    );
+    if (toppos <= innerHeight) {
+      console.log("[updatereadid] Start Update!");
+      setReadid(readid + 1);
+      console.log(`readid: ${readid}`);
     }
+    setTimeout(() => {
+      window.addEventListener("scroll", updatereadid, { once: true });
+    }, 2000);
+  }
   async function fetchReadid(userid) {
     if (!userid) return;
     // const supabase = useSupabaseClient();
@@ -95,6 +93,7 @@ export default function ChatRoom({}) {
 
   useEffect(() => {
     if (roomid && userid) {
+      console.log("useEffect executed");
       getUsername(roomid);
       fetchReadid(userid);
       fetchMessages(roomid).then((data) => {
@@ -116,7 +115,7 @@ export default function ChatRoom({}) {
           .subscribe()
       );
     }
-  }, [roomid, userid, supabase]);
+  }, [roomid, userid]);
 
   // New message recieved from Postgres
   useEffect(() => {

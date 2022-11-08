@@ -74,6 +74,7 @@ export function PersonalList({ roomid, myid }) {
   }
   getUsername();
   getLastChat();
+  getLastLogin();
   return (
     <>
       <style jsx>{`
