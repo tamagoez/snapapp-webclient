@@ -1,6 +1,8 @@
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+const { DateTime } = require("luxon");
+
 export function PersonalList({ roomid, myid }) {
   console.log(`[PersonalList] Got props: roomid: ${roomid}, myid: ${myid}`);
   const router = useRouter();
@@ -42,11 +44,12 @@ export function PersonalList({ roomid, myid }) {
     }
   }
   async function getLastLogin() {
+    let userid = await getUserid();
     try {
       const { data, error } = await supabase
         .from("profiles")
         .select("online_at")
-        .eq("id", myid)
+        .eq("id", userid)
         .limit(1)
         .single();
       if (error) throw error;
@@ -75,6 +78,15 @@ export function PersonalList({ roomid, myid }) {
   getUsername();
   getLastChat();
   getLastLogin();
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      getLastLogin();
+    }, 10000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
   return (
     <>
       <style jsx>{`
@@ -125,10 +137,30 @@ export function PersonalList({ roomid, myid }) {
         </div>
         <div>
           <h3>{username}</h3>
-          <p className="smallstatus">最終ログイン: {lastlogin}</p>
+          <p className="smallstatus">
+            {onlinecheck(lastlogin)
+              ? "オンラインです"
+              : `最終ログイン: ${replacetz(lastlogin)}`}
+          </p>
           <p>{lastchat}</p>
         </div>
       </div>
     </>
   );
+}
+
+function replacetz(time) {
+  // const systemtz = DateTime.now().locale;
+  // Settings.defaultZone = "system";
+  const defaulttime = DateTime.fromISO(time);
+  const rezoned = defaulttime.setZone(DateTime.local().zoneName);
+  return rezoned.toFormat("FF").toString();
+}
+
+function onlinecheck(data) {
+  const now = DateTime.fromISO(DateTime.utc());
+  const gottime = DateTime.fromISO(data);
+  const difftime = now.diff(gottime);
+  console.log("[onlinecheck]: " + difftime);
+  return difftime < 15000;
 }

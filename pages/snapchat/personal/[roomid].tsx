@@ -30,6 +30,8 @@ export default function ChatRoom({}) {
     else router.replace(`/app/auth?next=${location.pathname}`);
   }, [session]);
 
+  if (typeof window !== "undefined") window.onload = () => scroll();
+
   // 既読機構
   //
   const [readid, setReadid] = useState(undefined);
@@ -66,9 +68,56 @@ export default function ChatRoom({}) {
       setReadid(document.getElementsByClassName("mychatbox")[data.read]);
     } catch (error) {
       console.error(error);
-      alert(error.message);
+      // alert(error.message);
     }
   }
+  //
+
+  // オンライン機構
+  const [rawlogin, setRawlogin] = useState();
+  const [oid, setOID] = useState(undefined);
+  async function getOID() {
+    try {
+      const { data, error } = await supabase
+        .from("personalmember")
+        .select("userid")
+        .eq("roomid", roomid)
+        .neq("userid", userid)
+        .limit(1)
+        .single();
+      if (error) throw error;
+      console.dir(data);
+      setOID(data.userid);
+      return data.userid;
+    } catch (error) {
+      console.error(error);
+      // alert(error.message);
+    }
+  }
+  async function getLastLogin() {
+    console.log(`oid: ${oid}`);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("online_at")
+        .eq("id", await getOID())
+        .limit(1)
+        .single();
+      if (error) throw error;
+      console.dir(data);
+      setRawlogin(data.online_at);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      getLastLogin();
+    }, 10000);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
   //
 
   //kari
@@ -91,11 +140,14 @@ export default function ChatRoom({}) {
     }
   }
 
+  ///
+
   useEffect(() => {
     if (roomid && userid) {
       console.log("useEffect executed");
       getUsername(roomid);
       fetchReadid(userid);
+      getOID();
       fetchMessages(roomid).then((data) => {
         setMessages(data);
         console.log("fetched");
@@ -253,6 +305,11 @@ export default function ChatRoom({}) {
         #chatframe {
           margin-bottom: 45px;
         }
+        .topnav .lastlogin {
+          margin: 0;
+          font-size: 7px;
+          padding: 0;
+        }
       `}</style>
       <div className="topnav">
         <div>
@@ -262,6 +319,11 @@ export default function ChatRoom({}) {
         </div>
         <div>
           <h4>{username}</h4>
+          <p className="lastlogin">
+            {onlinecheck(rawlogin)
+              ? "オンラインです"
+              : `最終ログイン: ${replacetz(rawlogin)}`}
+          </p>
         </div>
       </div>
       <div id="chatframe">
@@ -473,5 +535,13 @@ function replacetz(time) {
   // Settings.defaultZone = "system";
   const defaulttime = DateTime.fromISO(time);
   const rezoned = defaulttime.setZone(DateTime.local().zoneName);
-  return rezoned.toFormat("ff").toString();
+  return rezoned.toFormat("FF").toString();
+}
+
+function onlinecheck(data) {
+  const now = DateTime.fromISO(DateTime.utc());
+  const gottime = DateTime.fromISO(data);
+  const difftime = now.diff(gottime);
+  console.log("[onlinecheck]: " + difftime);
+  return difftime < 15000;
 }
