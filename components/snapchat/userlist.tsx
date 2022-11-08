@@ -89,7 +89,8 @@ export function PersonalList({ roomid, myid }) {
         }
         .userlistbox:hover {
           background-color: #f5f3f2;
-          filter: drop-shadow(10px 10px 4px #d8dbd9);
+          filter: drop-shadow(5px 5px 4px #d8dbd9);
+          filter: brightness(95%);
           z-index: 1;
         }
         .userlistbox img {

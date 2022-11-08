@@ -12,6 +12,7 @@ import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 const { DateTime } = require("luxon");
+import Twemoji from "react-twemoji";
 
 export default function ChatRoom({}) {
   const router = useRouter();
@@ -28,6 +29,49 @@ export default function ChatRoom({}) {
     if (session) console.log("logined");
     else router.replace(`/app/auth?next=${location.pathname}`);
   }, [session]);
+
+  // 既読機構
+  //
+  const [readid, setReadid] = useState(undefined);
+  // if (typeof window !== "undefined") window.addEventListener("scroll", updatereadid, { once: true });
+    async function updatereadid() {
+      if (readid === undefined) return;
+      const toppos = document
+        .getElementById(readid)
+        .getBoundingClientRect().top;
+      const innerHeight = window.innerHeight;
+      console.log(
+        `[updatereadid] innerHeight: ${innerHeight} / toppos: ${toppos}`
+      );
+      if (toppos <= innerHeight) {
+        console.log("[updatereadid] Start Update!");
+        setReadid(readid + 1);
+        console.log(`readid: ${readid}`);
+      }
+      setTimeout(() => {
+        window.addEventListener("scroll", updatereadid, { once: true });
+      }, 2000);
+    }
+  async function fetchReadid(userid) {
+    if (!userid) return;
+    // const supabase = useSupabaseClient();
+    try {
+      const { data, error } = await supabase
+        .from("personalmember")
+        .select("read")
+        .eq("userid", userid)
+        .eq("roomid", roomid)
+        .limit(1)
+        .single();
+      if (error) throw error;
+      console.dir(data);
+      setReadid(document.getElementsByClassName("mychatbox")[data.read]);
+    } catch (error) {
+      console.error(error);
+      alert(error.message);
+    }
+  }
+  //
 
   //kari
   const [newMessage, setNewMessage] = useState(null);
@@ -52,9 +96,10 @@ export default function ChatRoom({}) {
   useEffect(() => {
     if (roomid && userid) {
       getUsername(roomid);
+      fetchReadid(userid);
       fetchMessages(roomid).then((data) => {
         setMessages(data);
-        console.log(messages);
+        console.log("fetched");
         scroll();
       });
       supabase.removeAllChannels().then(() =>
@@ -109,7 +154,7 @@ export default function ChatRoom({}) {
   }, [messages]);
 
   const readLog = function () {
-    if (document) {
+    if (document && newMessage) {
       // https://1-notes.com/javascript-event-when-the-element-enters-the-screen-by-scrolling/
       let innerHeight = window.innerHeight;
       let elementslists = document.getElementsByClassName("mychatbox");
@@ -160,11 +205,9 @@ export default function ChatRoom({}) {
     // Watch for enter key
     if (event.shiftKey && event.key === "Enter") {
       console.log(`Shift + Enter`);
-      sendmessage(inputvalue);
-      setTimeout(() => {
-        setInputValue("");
-        document.getElementById("messageinput").focus;
-      }, 20);
+      sendmessage(
+        (document.getElementById("messageinput") as HTMLInputElement).value
+      );
     }
   };
   async function sendmessage(value) {
@@ -178,6 +221,10 @@ export default function ChatRoom({}) {
       console.error(error);
       alert(`ERROR: ${error.message}`);
     }
+    setTimeout(() => {
+      (document.getElementById("messageinput") as HTMLInputElement).value = "";
+      document.getElementById("messageinput").focus;
+    }, 20);
   }
 
   return (
@@ -258,17 +305,14 @@ export default function ChatRoom({}) {
           id="messageinput"
           placeholder={`メッセージを入力
 [SHIFT+Enterで送信 / Enterで改行]`}
-          value={inputvalue}
-          onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => keyDown(e)}
         />
         <button
           onClick={() => {
-            sendmessage(inputvalue);
-            setTimeout(() => {
-              setInputValue("");
-              document.getElementById("messageinput").focus;
-            }, 20);
+            sendmessage(
+              (document.getElementById("messageinput") as HTMLInputElement)
+                .value
+            );
           }}
         >
           <IoSend />
@@ -334,7 +378,7 @@ function OpponentChat({ userid, messageid, text, created_at }) {
           font-size: 5px;
         }
       `}</style>
-      <div className="mychatbox">
+      <div className="mychatbox" id={messageid}>
         <div className="mychat">
           <div>
             <img
@@ -343,17 +387,21 @@ function OpponentChat({ userid, messageid, text, created_at }) {
             />
           </div>
           <p className="chattext">
-            <ReactMarkdown
-              remarkPlugins={[gfm, remarkBreaks]}
-              unwrapDisallowed={false}
-              linkTarget="_blank"
-            >
-              {text}
-            </ReactMarkdown>
+            <Twemoji options={{ className: "twemoji" }}>
+              <ReactMarkdown
+                remarkPlugins={[gfm, remarkBreaks]}
+                unwrapDisallowed={false}
+                linkTarget="_blank"
+              >
+                {text}
+              </ReactMarkdown>
+            </Twemoji>
           </p>
         </div>
       </div>
-      <p className="created_at">{replacetz(created_at)}</p>
+      <p className="created_at">
+        {messageid} / {replacetz(created_at)}
+      </p>
     </>
   );
 }
@@ -396,23 +444,27 @@ function MyChat({ userid, messageid, text, created_at }) {
           padding-right: 5px;
         }
       `}</style>
-      <div className="mychatbox">
+      <div className="mychatbox" id={messageid}>
         <div className="mychat">
           <p className="chattext">
-            <ReactMarkdown
-              remarkPlugins={[gfm, remarkBreaks]}
-              unwrapDisallowed={false}
-              linkTarget="_blank"
-            >
-              {text}
-            </ReactMarkdown>
+            <Twemoji options={{ className: "twemoji" }}>
+              <ReactMarkdown
+                remarkPlugins={[gfm, remarkBreaks]}
+                unwrapDisallowed={false}
+                linkTarget="_blank"
+              >
+                {text}
+              </ReactMarkdown>
+            </Twemoji>
           </p>
           <div>
             <img src="https://pedpmlptqookenixzvqt.supabase.co/storage/v1/object/public/avatars/guest.svg" />
           </div>
         </div>
       </div>
-      <p className="created_at">{replacetz(created_at)}</p>
+      <p className="created_at">
+        {messageid} / {replacetz(created_at)}
+      </p>
     </>
   );
 }

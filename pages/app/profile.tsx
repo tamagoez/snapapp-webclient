@@ -17,6 +17,7 @@ export default function Profile() {
   const [username, setUsername] = useState(null);
   const [website, setWebsite] = useState(null);
   const [avatar_url, setAvatarUrl] = useState(null);
+  const [handle_id, setHandleId] = useState(null);
   useEffect(() => {
     getProfile();
   }, [session]);
@@ -26,7 +27,7 @@ export default function Profile() {
 
       let { data, error, status } = await supabase
         .from("profiles")
-        .select(`username, website, avatar_url`)
+        .select(`username, website, avatar_url, handle_id`)
         .eq("id", user.id)
         .single();
 
@@ -38,6 +39,7 @@ export default function Profile() {
         setUsername(data.username);
         setWebsite(data.website);
         setAvatarUrl(data.avatar_url);
+        setHandleId(data.handle_id);
       }
     } catch (error) {
       // alert("Error loading user data!");
@@ -46,7 +48,7 @@ export default function Profile() {
       setLoading(false);
     }
   }
-  async function updateProfile({ username, website, avatar_url }) {
+  async function updateProfile({ username, website, avatar_url, handle_id }) {
     try {
       setLoading(true);
 
@@ -56,6 +58,7 @@ export default function Profile() {
         website,
         avatar_url,
         updated_at: new Date().toISOString(),
+        handle_id,
       };
 
       let { error } = await supabase.from("profiles").upsert(updates);
@@ -78,7 +81,7 @@ export default function Profile() {
         size={150}
         onUpload={(url) => {
           setAvatarUrl(url);
-          updateProfile({ username, website, avatar_url: url });
+          updateProfile({ username, website, avatar_url: url, handle_id });
         }}
       />
       <div>
@@ -95,6 +98,15 @@ export default function Profile() {
         />
       </div>
       <div>
+        <label htmlFor="website">HandleID</label>
+        <input
+          id="handleid"
+          type="handleid"
+          value={handle_id || ""}
+          onChange={(e) => setHandleId(e.target.value)}
+        />
+      </div>
+      <div>
         <label htmlFor="website">Website</label>
         <input
           id="website"
@@ -107,10 +119,12 @@ export default function Profile() {
       <div>
         <button
           className="button primary block"
-          onClick={() => updateProfile({ username, website, avatar_url })}
+          onClick={() =>
+            updateProfile({ username, website, avatar_url, handle_id })
+          }
           disabled={loading}
         >
-          {loading ? "Loading ..." : "Update"}
+          {loading ? "Loading ..." : "更新する"}
         </button>
       </div>
 
