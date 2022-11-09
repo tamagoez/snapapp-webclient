@@ -301,13 +301,14 @@ export default function ChatRoom({}) {
         }
         .topnav h4 {
           margin: 0;
+          font-size: 14px;
         }
         #chatframe {
           margin-bottom: 45px;
         }
         .topnav .lastlogin {
           margin: 0;
-          font-size: 7px;
+          font-size: 8px;
           padding: 0;
         }
       `}</style>

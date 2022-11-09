@@ -15,7 +15,15 @@ export default function Dashboard() {
   return (
     <>
       <h1>ようこそ!</h1>
-      <Link href="/snapchat">SnapChat</Link>
+      <p>
+        <Link href="/snapchat">SnapChat</Link>
+      </p>
+      <p>
+        <Link href="/app/profile">プロフィール</Link>
+      </p>
+      <p>
+        <Link href="/app/logout">ログアウト</Link>
+      </p>
     </>
   );
 }

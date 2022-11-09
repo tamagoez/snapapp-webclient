@@ -3,6 +3,7 @@ import {
   useSupabaseClient,
   useUser,
 } from "@supabase/auth-helpers-react";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { MdClose } from "react-icons/md";
 import { PersonalList } from "../../../components/snapchat/userlist";
@@ -13,6 +14,7 @@ export default function SnapChatPersonalMenu() {
   const user = useUser();
   const userid = user?.id;
   const session = useSession();
+  const router = useRouter();
 
   const [adduserid, setAdduserid] = useState("");
   const [addrequest, setAddRequest] = useState("");
@@ -174,6 +176,9 @@ export default function SnapChatPersonalMenu() {
         <div>
           <span>+ 追加する</span>
         </div>
+      </button>
+      <button onClick={() => router.push("/app/dashboard")}>
+        <span>Dashboardに戻る</span>
       </button>
       <div className="acu-parent">
         <div className="acu-modal">
