@@ -24,7 +24,9 @@ export default function ChatRoom({}) {
   const [username, setUsername] = useState("Loading...");
   const [messages, setMessages] = useState([]);
 
-  const notifysound = new Audio("/snapchat/recieve.mp3");
+  let notifysound;
+  if (typeof Audio != "undefined")
+    notifysound = new Audio("/snapchat/recieve.mp3");
 
   const session = useSession();
   useEffect(() => {
