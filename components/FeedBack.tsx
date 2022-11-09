@@ -26,6 +26,7 @@ export function FeedBack() {
     }
   }
   const versionsha = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA;
+  const versiondesc = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_MESSAGE;
   return (
     <>
       <style jsx>{`
@@ -142,7 +143,15 @@ export function FeedBack() {
           <div>
             <label>
               ご利用中のバージョン:{" "}
-              <b>{versionsha?.substring(0, 7) || "nightly"}</b>
+              <b>{versionsha?.substring(0, 7) || "real-time"}</b>
+            </label>
+          </div>
+          <div>
+            <label>
+              アップデート情報:{" "}
+              <b>
+                {versiondesc || "情報がありません(real-timeは元々ありません)"}
+              </b>
             </label>
           </div>
           <div>

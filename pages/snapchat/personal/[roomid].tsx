@@ -24,6 +24,8 @@ export default function ChatRoom({}) {
   const [username, setUsername] = useState("Loading...");
   const [messages, setMessages] = useState([]);
 
+  const notifysound = new Audio("/snapchat/recieve.mp3");
+
   const session = useSession();
   useEffect(() => {
     if (session) console.log("logined");
@@ -173,6 +175,7 @@ export default function ChatRoom({}) {
     if (newMessage) {
       const handleAsync = async () => {
         setMessages(messages.concat(newMessage));
+        if (newMessage.userid !== userid) notifysound.play();
       };
       console.log(newMessage.roomid == roomid);
       if (newMessage.roomid == roomid) handleAsync();
