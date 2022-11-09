@@ -320,9 +320,11 @@ export default function ChatRoom({}) {
         <div>
           <h4>{username}</h4>
           <p className="lastlogin">
-            {onlinecheck(rawlogin)
-              ? "オンラインです"
-              : `最終ログイン: ${replacetz(rawlogin)}`}
+            {onlinecheck(rawlogin) ? (
+              <b>オンラインです</b>
+            ) : (
+              `最終ログイン: ${replacetz(rawlogin)}`
+            )}
           </p>
         </div>
       </div>
@@ -375,9 +377,10 @@ export default function ChatRoom({}) {
           opacity: 40%;
           padding-top: 3px;
           cursor: pointer;
+          color: #aaabab;
         }
         .gobottom:hover {
-          animation: onhovergobottom 0.5s ease 1 forwards;
+          animation: onhovergobottom 0.4s ease 1 forwards;
         }
         @keyframes onhovergobottom {
           0% {
@@ -467,7 +470,8 @@ function OpponentChat({ userid, messageid, text, created_at }) {
         }
         .created_at {
           margin: 0;
-          font-size: 5px;
+          font-size: 6px;
+          padding-left: 4px;
         }
       `}</style>
       <div className="mychatbox" id={messageid}>
@@ -532,7 +536,7 @@ function MyChat({ userid, messageid, text, created_at }) {
           display: flex;
           justify-content: flex-end;
           margin: 0;
-          font-size: 5px;
+          font-size: 6px;
           padding-right: 5px;
         }
       `}</style>

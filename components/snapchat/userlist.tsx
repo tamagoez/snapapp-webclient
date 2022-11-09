@@ -139,9 +139,11 @@ export function PersonalList({ roomid, myid }) {
         <div>
           <h3>{username}</h3>
           <p className="smallstatus">
-            {onlinecheck(lastlogin)
-              ? "オンラインです"
-              : `最終ログイン: ${replacetz(lastlogin)}`}
+            {onlinecheck(lastlogin) ? (
+              <b>オンラインです</b>
+            ) : (
+              `最終ログイン: ${replacetz(lastlogin)}`
+            )}
           </p>
           <p>{lastchat}</p>
         </div>
