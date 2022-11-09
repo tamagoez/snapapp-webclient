@@ -25,7 +25,7 @@ export function FeedBack() {
       console.error(error.message);
     }
   }
-
+  const versionsha = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA;
   return (
     <>
       <style jsx>{`
@@ -139,6 +139,12 @@ export function FeedBack() {
           <label htmlFor="feedback">
             <MdClose />
           </label>
+          <div>
+            <label>
+              ご利用中のバージョン:{" "}
+              <b>{versionsha?.substring(0, 7) || "nightly"}</b>
+            </label>
+          </div>
           <div>
             <label htmlFor="short">簡潔に説明してください(30字以内)</label>
             <input
