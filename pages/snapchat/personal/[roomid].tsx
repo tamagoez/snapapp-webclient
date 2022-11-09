@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import { relative } from "path";
 import { useEffect, useRef, useState } from "react";
 import { IoSend } from "react-icons/io5";
-import { IoIosArrowBack } from "react-icons/io";
+import { IoIosArrowBack, IoIosArrowDown } from "react-icons/io";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
@@ -29,8 +29,6 @@ export default function ChatRoom({}) {
     if (session) console.log("logined");
     else router.replace(`/app/auth?next=${location.pathname}`);
   }, [session]);
-
-  if (typeof window !== "undefined") window.onload = () => scroll();
 
   // 既読機構
   //
@@ -110,6 +108,7 @@ export default function ChatRoom({}) {
       console.error(error.message);
     }
   }
+  getLastLogin();
   useEffect(() => {
     const intervalId = setInterval(() => {
       getLastLogin();
@@ -190,6 +189,7 @@ export default function ChatRoom({}) {
   }
   useEffect(() => {
     if (document) {
+      if (!newMessage) scroll();
       //スクロールイベントリスナーに登録
       window.addEventListener("scroll", readLog, { once: true });
       // https://1-notes.com/javascript-event-when-the-element-enters-the-screen-by-scrolling/
@@ -202,7 +202,7 @@ export default function ChatRoom({}) {
         scroll();
       }
     }
-  }, [messages]);
+  }, [messages, newMessage]);
 
   const readLog = function () {
     if (document && newMessage) {
@@ -359,6 +359,34 @@ export default function ChatRoom({}) {
           border: 1px solid #cccccc;
           border-radius: 5px 5px 5px 5px;
         }
+        .gobottom {
+          width: 40px;
+          height: 40px;
+          position: fixed;
+          z-index: 100;
+          bottom: 55px;
+          display: inline-flex;
+          flex-shrink: 0;
+          border-radius: 50%;
+          background-color: #f5f3f2;
+          border-color: #f5f3f2;
+          left: 15px;
+          font-size: 40px;
+          opacity: 40%;
+          padding-top: 3px;
+          cursor: pointer;
+        }
+        .gobottom:hover {
+          animation: onhovergobottom 0.5s ease 1 forwards;
+        }
+        @keyframes onhovergobottom {
+          0% {
+            opacity: 40%;
+          }
+          100% {
+            opacity: 100%;
+          }
+        }
       `}</style>
       <div className="bottominput">
         <textarea
@@ -378,6 +406,9 @@ export default function ChatRoom({}) {
         >
           <IoSend />
         </button>
+      </div>
+      <div className="gobottom" onClick={() => scroll()}>
+        <IoIosArrowDown />
       </div>
     </>
   );

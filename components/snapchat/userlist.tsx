@@ -81,6 +81,7 @@ export function PersonalList({ roomid, myid }) {
   useEffect(() => {
     const intervalId = setInterval(() => {
       getLastLogin();
+      getLastChat();
     }, 10000);
 
     return () => {
