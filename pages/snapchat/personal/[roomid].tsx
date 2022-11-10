@@ -25,14 +25,22 @@ export default function ChatRoom({}) {
   const [messages, setMessages] = useState([]);
 
   let notifysound;
-  if (typeof Audio != "undefined")
-    notifysound = new Audio("/snapchat/recieve.mp3");
 
   const session = useSession();
   useEffect(() => {
     if (session) console.log("logined");
     else router.replace(`/app/auth?next=${location.pathname}`);
   }, [session]);
+
+  // body をクリックしたときの処理を定義
+  if (typeof document !== "undefined")
+    document.body.addEventListener(
+      "click",
+      () => {
+        prepareSound();
+      },
+      { once: true }
+    );
 
   // 既読機構
   //
@@ -133,7 +141,8 @@ export default function ChatRoom({}) {
       const { data, error } = await supabase
         .from("personalchat")
         .select("id, userid, text, created_at")
-        .eq("roomid", roomid);
+        .eq("roomid", roomid)
+        .order("id", { ascending: true });
       if (error) throw error;
       console.dir(data);
       return data;
@@ -177,7 +186,7 @@ export default function ChatRoom({}) {
     if (newMessage) {
       const handleAsync = async () => {
         setMessages(messages.concat(newMessage));
-        if (newMessage.userid !== userid) notifysound.play();
+        if (newMessage.userid !== userid) playSound();
       };
       console.log(newMessage.roomid == roomid);
       if (newMessage.roomid == roomid) handleAsync();
@@ -317,6 +326,9 @@ export default function ChatRoom({}) {
           padding: 0;
         }
       `}</style>
+      <audio id="notifysound" preload="auto">
+        <source src="/snapchat/recieve.mp3" type="audio/mp3" />
+      </audio>
       <div className="topnav">
         <div>
           <p onClick={() => router.back()}>
@@ -585,4 +597,19 @@ function onlinecheck(data) {
   const difftime = now.diff(gottime);
   console.log("[onlinecheck]: " + difftime);
   return difftime < 15000;
+}
+
+function prepareSound() {
+  const notifysound = document.getElementById(
+    "notifysound"
+  ) as HTMLAudioElement;
+  notifysound.play();
+  notifysound.pause();
+}
+
+function playSound() {
+  const notifysound = document.getElementById(
+    "notifysound"
+  ) as HTMLAudioElement;
+  notifysound.play();
 }

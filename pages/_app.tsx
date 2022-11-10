@@ -24,6 +24,7 @@ function MyApp({
   // const user = useUser();
 
   async function setonline() {
+    if (!session) return;
     const nowtime = DateTime.now().setZone("utc").toString();
     const {
       data: { user },
