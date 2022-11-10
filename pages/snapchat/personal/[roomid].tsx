@@ -611,5 +611,6 @@ function playSound() {
   const notifysound = document.getElementById(
     "notifysound"
   ) as HTMLAudioElement;
+  notifysound.currentTime = 0;
   notifysound.play();
 }

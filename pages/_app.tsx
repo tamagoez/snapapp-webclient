@@ -24,11 +24,11 @@ function MyApp({
   // const user = useUser();
 
   async function setonline() {
-    if (!session) return;
     const nowtime = DateTime.now().setZone("utc").toString();
     const {
       data: { user },
     } = await supabaseClient.auth.getUser();
+    if (!user.id) return;
     console.log(`[setStatus] Setting ${user.id}: ${nowtime}`);
     const { error } = await supabaseClient
       .from("profiles")
