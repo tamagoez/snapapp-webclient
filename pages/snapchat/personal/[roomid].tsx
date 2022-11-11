@@ -13,6 +13,7 @@ import gfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 const { DateTime } = require("luxon");
 import Twemoji from "react-twemoji";
+import { makeNotification } from "../../../scripts/notification";
 
 export default function ChatRoom({}) {
   const router = useRouter();
@@ -186,7 +187,14 @@ export default function ChatRoom({}) {
     if (newMessage) {
       const handleAsync = async () => {
         setMessages(messages.concat(newMessage));
-        if (newMessage.userid !== userid) playSound();
+        if (newMessage.userid !== userid) {
+          playSound();
+          makeNotification(
+            username,
+            newMessage.text,
+            "icon-512x512.png"
+          );
+        }
       };
       console.log(newMessage.roomid == roomid);
       if (newMessage.roomid == roomid) handleAsync();

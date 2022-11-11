@@ -28,7 +28,7 @@ function MyApp({
     const {
       data: { user },
     } = await supabaseClient.auth.getUser();
-    if (!user.id) return;
+    if (!user) return;
     console.log(`[setStatus] Setting ${user.id}: ${nowtime}`);
     const { error } = await supabaseClient
       .from("profiles")

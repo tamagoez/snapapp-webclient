@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { MdClose } from "react-icons/md";
 import { PersonalList } from "../../../components/snapchat/userlist";
+import { requestPermission } from "../../../scripts/notification";
 
 export default function SnapChatPersonalMenu() {
   // const errormsg = console.error.bind(document!);
@@ -179,6 +180,9 @@ export default function SnapChatPersonalMenu() {
       </button>
       <button onClick={() => router.push("/app/dashboard")}>
         <span>Dashboardに戻る</span>
+      </button>
+      <button onClick={() => requestPermission()}>
+        <span>通知のアクセスを許可する</span>
       </button>
       <div className="acu-parent">
         <div className="acu-modal">
